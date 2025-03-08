@@ -9,29 +9,23 @@ description = "Macros for creating Substrate extrinsics and rpc calls"
 readme = "README.md"
 categories = ["no-std"]
 
-
 [dependencies]
-log = { version = "0.4", default-features = false }
-maybe-async = { version = "0.2" }
-
-# local
-ac-primitives = { path = "../primitives", version = "1.17", default-features = false }
+log = { workspace = true }
+maybe-async = { workspace = true }
+ac-primitives = { workspace = true, default-features = false }
 
 [dev-dependencies]
-ac-node-api = { path = "../node-api", version = "1.17" }
-frame-metadata = { version = "18.0" }
-codec = { package = "parity-scale-codec", version = "3.7" }
-
+ac-node-api = { workspace = true }
+frame-metadata = { workspace = true }
+codec = { workspace = true }
 
 [features]
 default = ["std", "sync-api"]
 sync-api = ["maybe-async/is_sync"]
-# To support `no_std` builds in non-32 bit environments.
 disable_target_static_assertions = [
     "ac-primitives/disable_target_static_assertions",
 ]
 std = [
     "log/std",
-    # local
     "ac-primitives/std",
 ]

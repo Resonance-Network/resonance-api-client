@@ -10,7 +10,6 @@ readme = "README.md"
 keywords = ["json", "rpc", "polkadot", "api", "blockchain"]
 categories = ["no-std", "wasm"]
 
-
 [workspace]
 members = [
     ".",
@@ -25,19 +24,50 @@ members = [
     "testing/sync",
 ]
 
-[dependencies]
-# crates.io no_std
+[workspace.dependencies]
+ac-primitives = { path = "primitives", version = "1.17", default-features = false }
+ac-node-api = { path = "node-api", version = "1.17", default-features = false }
 async-trait = "0.1"
 codec = { package = "parity-scale-codec", version = "3.7", default-features = false, features = ["derive"] }
-derive_more = { version = "2.0", default-features = false, features = ["from"] }
-frame-metadata = { version = "18.0", default-features = false, features = ["current", "serde_full", "decode"] }
-futures-util = { version = "0.3", default-features = false }
-hex = { version = "0.4", default-features = false, features = ["alloc"] }
 log = { version = "0.4", default-features = false }
 maybe-async = { version = "0.2" }
+frame-metadata = { version = "18.0", default-features = false, features = ["current", "serde_full", "decode"] }
+serde_json = { version = "1.0.132", default-features = false }
+scale-info = { version = "2.1", features = ["derive"] }
 serde = { version = "1.0", default-features = false, features = ["derive"] }
-serde_json = { version = "1.0", default-features = false }
 
+sp-core = { version = "35.0.0", default-features = false, features = ["full_crypto", "serde"] }
+sp-crypto-hashing = { version = "0.1.0", default-features = false }
+sp-inherents = { version = "35.0.0", default-features = false }
+sp-runtime = { version = "40.1.0", default-features = false, features = ["serde"] }
+sp-runtime-interface = { version = "29.0.0", default-features = false }
+sp-storage = { version = "22.0.0", default-features = false, features = ["serde"] }
+sp-version = { version = "38.0.0", default-features = false, features = ["serde"] }
+sp-weights = { version = "31.0.0", default-features = false, features = ["serde"] }
+sp-application-crypto = { version = "39.0.0", default-features = false, features = ["full_crypto"] }
+sp-staking = { version = "37.0.0", default-features = false, features = ["serde"] }
+sp-keyring = { version = "40.0.0" }
+sp-keystore = { version = "0.41.0" }
+sc-keystore = { version = "34.0.0" }
+frame-system = { version = "39.1.0", default-features = false }
+
+pallet-balances = { version = "40.0.0", default-features = false }
+pallet-sudo = { version = "39.0.0", default-features = false }
+pallet-timestamp = { version = "38.0.0", default-features = false }
+pallet-transaction-payment-rpc-runtime-api = { version = "39.0.0", default-features = false }
+
+
+[dependencies]
+codec.workspace = true
+derive_more = { version = "2.0", default-features = false, features = ["from"] }
+futures-util = { version = "0.3", default-features = false }
+frame-metadata.workspace = true
+hex = { version = "0.4", default-features = false, features = ["alloc"] }
+log = { workspace = true }
+maybe-async = { workspace = true}
+serde.workspace = true
+serde_json.workspace = true
+async-trait.workspace = true
 
 # crates.io std only
 url = { version = "2.5", optional = true }
@@ -48,27 +78,27 @@ tungstenite = { version = "0.26", optional = true, features = ["native-tls", "ur
 ws = { version = "0.9", optional = true, features = ["ssl"] }
 
 # Substrate no_std dependencies
-sp-core = { default-features = false, features = ["full_crypto", "serde"], git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-crypto-hashing = { default-features = false, git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-inherents = { default-features = false, git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-runtime = { default-features = false, features = ["serde"], git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-runtime-interface = { default-features = false, git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-storage = { default-features = false, features = ["serde"], git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-version = { default-features = false, features = ["serde"], git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
+sp-core.workspace = true
+sp-crypto-hashing.workspace = true
+sp-inherents.workspace = true
+sp-runtime.workspace = true
+sp-runtime-interface.workspace = true
+sp-storage.workspace = true
+sp-version.workspace = true
 
 # substrate std / wasm only
 frame-support = { optional = true, git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
 
 # local deps
 ac-compose-macros = { path = "compose-macros", version = "1.17", default-features = false }
-ac-node-api = { path = "node-api", version = "1.17", default-features = false }
-ac-primitives = { path = "primitives", version = "1.17", default-features = false }
-
+ac-node-api.workspace = true
+ac-primitives.workspace =true
+scale-info.workspace = true
 
 [dev-dependencies]
 ac-node-api = { path = "node-api", version = "1.17", features = ["mocks"] }
 rococo-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-scale-info = { version = "2.1", features = ["derive"] }
+
 test-case = "3.1"
 
 [features]
@@ -98,7 +128,7 @@ ws-client = ["std", "ws", "sync-api"]
 # Enables functionality that helps to create extrinsics for `pallet-staking`.
 # See the `StakingExtrinsics` trait and the `staking_batch_payout` example to get an understanding
 # of the functionality this feature provides
-staking-xt = ["std", "ac-primitives/staking-xt"]
+# staking-xt = ["std", "ac-primitives/staking-xt"]
 
 # Enables functionality that helps to create extrinsics for `pallet-contracts`.
 # See the `ContractsExtrinsics` trait and the `contract_instantiate_with_code` example to get an understanding

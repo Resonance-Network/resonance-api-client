@@ -27,4 +27,5 @@ sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = 
 sp-weights = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
 
 # local deps
-substrate-api-client = { path = "../..", version = "1.17", features = ["staking-xt", "contracts-xt"] }
+# substrate-api-client = { path = "../..", version = "1.17", features = ["staking-xt", "contracts-xt"] }
+substrate-api-client = { path = "../..", version = "1.17", features = ["contracts-xt"] }

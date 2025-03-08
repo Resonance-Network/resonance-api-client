@@ -20,14 +20,14 @@
 pub use balances::BalancesExtrinsics;
 #[cfg(feature = "contracts-xt")]
 pub use contracts::ContractsExtrinsics;
-#[cfg(feature = "staking-xt")]
-pub use staking::StakingExtrinsics;
+// #[cfg(feature = "staking-xt")]
+// pub use staking::StakingExtrinsics;
 pub use utility::UtilityExtrinsics;
 
 pub mod balances;
 #[cfg(feature = "contracts-xt")]
 pub mod contracts;
 pub mod offline_extrinsic;
-#[cfg(feature = "staking-xt")]
-pub mod staking;
+// #[cfg(feature = "staking-xt")]
+// pub mod staking;
 pub mod utility;

@@ -11,10 +11,10 @@ categories = ["no-std"]
 
 [dependencies]
 bitvec = { version = "1.0", default-features = false, features = ["alloc"] }
-codec = { package = "parity-scale-codec", version = "3.7", features = ["derive", "bit-vec"], default-features = false }
+codec = { package = "parity-scale-codec", workspace = true, features = ["derive", "bit-vec"], default-features = false }
 derive_more = { version = "2.0", default-features = false, features = ["from"] }
 either = { version = "1.6", default-features = false }
-frame-metadata = { version = "18.0", default-features = false, features = ["current", "serde_full", "decode"] }
+frame-metadata = { workspace = true, default-features = false, features = ["current", "serde_full", "decode"] }
 hex = { version = "0.4", default-features = false }
 log = { version = "0.4", default-features = false }
 scale-bits = { version = "0.7", default-features = false, features = ["scale-info", "serde"] }
@@ -22,28 +22,30 @@ scale-decode = { version = "0.16", default-features = false, features = ["primit
 scale-encode = { version = "0.10", default-features = false, features = ["bits", "primitive-types", "derive"] }
 scale-info = { version = "2.0", features = ["derive", "decode", "bitvec"], default-features = false }
 scale-value = { version = "0.18", default-features = false }
-serde = { version = "1.0", features = ["derive"], default-features = false }
-serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
+serde = { workspace = true, features = ["derive"], default-features = false }
+serde_json = { workspace = true, default-features = false, features = ["alloc"] }
 
 # substrate
-sp-core = { default-features = false, features = ["full_crypto", "serde"], git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-crypto-hashing = { default-features = false, git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-runtime = { default-features = false, features = ["serde"], git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-storage = { default-features = false, features = ["serde"], git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-
-# need to add this for `no_std`
-sp-application-crypto = { default-features = false, features = ["full_crypto"], git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-runtime-interface = { default-features = false, git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
+sp-core = { workspace = true }
+sp-crypto-hashing = { workspace = true }
+sp-runtime = { workspace = true }
+sp-storage = { workspace = true }
+sp-application-crypto = { workspace = true }
+sp-runtime-interface = { workspace = true }
+sp-api = { version = "35.0.0", default-features = false }
+sp-genesis-builder = { version = "0.16.0", default-features = false }
+frame-support = { version = "39.0.0", default-features = false }
+frame-system = { workspace = true, default-features = false }
+pallet-balances = { version = "40.0.1", default-features = false }
 
 # local
-ac-primitives = { path = "../primitives", version = "1.17", default-features = false }
+ac-primitives = { workspace = true, default-features = false }
 
 [dev-dependencies]
 test-case = "3.1"
 
 [features]
 default = ["std"]
-# To support `no_std` builds in non-32 bit environments.
 disable_target_static_assertions = [
     "sp-runtime-interface/disable_target_static_assertions",
 ]
@@ -57,13 +59,15 @@ std = [
     "scale-info/std",
     "serde/std",
     "serde_json/std",
-    # substrate
     "sp-core/std",
     "sp-runtime/std",
-    # no_std support
     "sp-application-crypto/std",
     "sp-runtime-interface/std",
     "sp-storage/std",
+    "sp-api/std",
+    "sp-genesis-builder/std",
+    "frame-support/std",
+    "frame-system/std",
+    "pallet-balances/std",
 ]
-# Enable import of test_utils also outside of crate (feature test does not allow to do so).
 mocks = []

@@ -18,9 +18,10 @@ sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "ma
 sp-crypto-hashing = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
 sp-keyring = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
 sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-staking = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
+# sp-staking = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
 pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
 pallet-society = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
 
 # local deps
-substrate-api-client = { path = "../..", version = "1.17", features = ["staking-xt", "contracts-xt"] }
+# substrate-api-client = { path = "../..", version = "1.17", features = ["staking-xt", "contracts-xt"] }
+substrate-api-client = { path = "../..", version = "1.17", features = ["contracts-xt"] }
