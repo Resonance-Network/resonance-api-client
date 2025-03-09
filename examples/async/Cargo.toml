@@ -14,18 +14,38 @@ tokio-util = "0.7"
 wabt = "0.10"
 
 # Substrate dependencies
-frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-frame-system = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-rococo-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-pallet-identity = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-pallet-recovery = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-pallet-staking = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-keyring = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
-sp-weights = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
+frame-support = { workspace = true, default-features = false }
+frame-system = { workspace = true, default-features = false }
+# rococo-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" } // removed
+pallet-balances = { workspace = true, default-features = false }
+pallet-identity = { workspace = true, default-features = false }
+pallet-recovery = { workspace = true, default-features = false }
+# pallet-staking = { workspace = true, default-features = false }
+sp-core = { workspace = true, default-features = false }
+sp-keyring = { workspace = true, default-features = false }
+sp-runtime = { workspace = true, default-features = false }
+sp-weights = { workspace = true, default-features = false }
+# sp-runtime-interface = { workspace = true, default-features = false }
+sp-runtime-interface = { version = "27.0.0", default-features = false, features = ["std", "disable_target_static_assertions"] }
+# staging-xcm = { version = "11.0.0", default-features = false, features = ["std"] }
 
 # local deps
 # substrate-api-client = { path = "../..", version = "1.17", features = ["staking-xt", "contracts-xt"] }
-substrate-api-client = { path = "../..", version = "1.17", features = ["contracts-xt"] }
+substrate-api-client = { path = "../..", version = "1.17", features = ["contracts-xt", "std"] }
+
+[features]
+default = ["std"]
+std = [
+    "frame-support/std",
+    "frame-system/std",
+    # "rococo-runtime/std", // removed
+    "pallet-balances/std",
+    "pallet-identity/std",
+    "pallet-recovery/std",
+    "sp-core/std",
+    "sp-keyring/std",
+    "sp-runtime/std",
+    "sp-weights/std",
+    "sp-runtime-interface/std",
+    "substrate-api-client/std",
+]

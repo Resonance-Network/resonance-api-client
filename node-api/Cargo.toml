@@ -26,12 +26,12 @@ serde = { workspace = true, features = ["derive"], default-features = false }
 serde_json = { workspace = true, default-features = false, features = ["alloc"] }
 
 # substrate
-sp-core = { workspace = true }
-sp-crypto-hashing = { workspace = true }
-sp-runtime = { workspace = true }
-sp-storage = { workspace = true }
+sp-core = { workspace = true, default-features = false }
+sp-crypto-hashing = { workspace = true, default-features = false }
+sp-runtime = { workspace = true, default-features = false }
+sp-storage = { workspace = true, default-features = false }
 sp-application-crypto = { workspace = true }
-sp-runtime-interface = { workspace = true }
+sp-runtime-interface = { workspace = true, default-features = false }
 sp-api = { version = "35.0.0", default-features = false }
 sp-genesis-builder = { version = "0.16.0", default-features = false }
 frame-support = { version = "39.0.0", default-features = false }
@@ -60,10 +60,11 @@ std = [
     "serde/std",
     "serde_json/std",
     "sp-core/std",
+    "sp-crypto-hashing/std",
     "sp-runtime/std",
+    "sp-storage/std",
     "sp-application-crypto/std",
     "sp-runtime-interface/std",
-    "sp-storage/std",
     "sp-api/std",
     "sp-genesis-builder/std",
     "frame-support/std",

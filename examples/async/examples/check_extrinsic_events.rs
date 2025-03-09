@@ -16,7 +16,7 @@
 use sp_keyring::Sr25519Keyring;
 use substrate_api_client::{
 	ac_node_api::RawEventDetails,
-	ac_primitives::{Config, RococoRuntimeConfig},
+	ac_primitives::{Config, PolkadotRuntimeConfig},
 	extrinsic::BalancesExtrinsics,
 	rpc::JsonrpseeClient,
 	Api, GetAccountInformation, SubmitAndWatch, TransactionStatus, XtStatus,
@@ -25,7 +25,7 @@ use substrate_api_client::{
 // To test this example with CI we run it against the Polkadot Rococo node. Remember to switch the Config to match your
 // own runtime if it uses different parameter configurations. Several pre-compiled runtimes are available in the ac-primitives crate.
 
-type Hash = <RococoRuntimeConfig as Config>::Hash;
+type Hash = <PolkadotRuntimeConfig as Config>::Hash;
 
 #[tokio::main]
 async fn main() {
@@ -34,7 +34,7 @@ async fn main() {
 	// Initialize api and set the signer (sender) that is used to sign the extrinsics.
 	let alice_signer = Sr25519Keyring::Alice.pair();
 	let client = JsonrpseeClient::with_default_url().await.unwrap();
-	let mut api = Api::<RococoRuntimeConfig, _>::new(client).await.unwrap();
+	let mut api = Api::<PolkadotRuntimeConfig, _>::new(client).await.unwrap();
 	api.set_signer(alice_signer.into());
 
 	let alice = Sr25519Keyring::Alice.to_account_id();

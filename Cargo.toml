@@ -31,11 +31,15 @@ async-trait = "0.1"
 codec = { package = "parity-scale-codec", version = "3.7", default-features = false, features = ["derive"] }
 log = { version = "0.4", default-features = false }
 maybe-async = { version = "0.2" }
-frame-metadata = { version = "18.0", default-features = false, features = ["current", "serde_full", "decode"] }
 serde_json = { version = "1.0.132", default-features = false }
 scale-info = { version = "2.1", features = ["derive"] }
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 
+frame-metadata = { version = "18.0", default-features = false, features = ["current", "serde_full", "decode"] }
+frame-support = { version = "39.0.0", default-features = false }
+frame-system = { version = "39.1.0", default-features = false }
+
+sc-keystore = { version = "34.0.0" }
 sp-core = { version = "35.0.0", default-features = false, features = ["full_crypto", "serde"] }
 sp-crypto-hashing = { version = "0.1.0", default-features = false }
 sp-inherents = { version = "35.0.0", default-features = false }
@@ -46,15 +50,18 @@ sp-version = { version = "38.0.0", default-features = false, features = ["serde"
 sp-weights = { version = "31.0.0", default-features = false, features = ["serde"] }
 sp-application-crypto = { version = "39.0.0", default-features = false, features = ["full_crypto"] }
 sp-staking = { version = "37.0.0", default-features = false, features = ["serde"] }
-sp-keyring = { version = "40.0.0" }
-sp-keystore = { version = "0.41.0" }
-sc-keystore = { version = "34.0.0" }
-frame-system = { version = "39.1.0", default-features = false }
+sp-keyring = { version = "40.0.0", default-features = false }
+sp-keystore = { version = "0.41.0", default-features = false }
+sp-externalities = { version = "0.28.0", default-features = false }
 
 pallet-balances = { version = "40.0.0", default-features = false }
+pallet-identity = { version = "39.0.0", default-features = false }
+pallet-recovery = { version = "39.0.0", default-features = false }
 pallet-sudo = { version = "39.0.0", default-features = false }
 pallet-timestamp = { version = "38.0.0", default-features = false }
 pallet-transaction-payment-rpc-runtime-api = { version = "39.0.0", default-features = false }
+
+resonance-runtime = { path = "../backbone/runtime", default-features = false }
 
 
 [dependencies]
@@ -68,6 +75,7 @@ maybe-async = { workspace = true}
 serde.workspace = true
 serde_json.workspace = true
 async-trait.workspace = true
+sp-externalities.workspace = true
 
 # crates.io std only
 url = { version = "2.5", optional = true }
@@ -85,21 +93,24 @@ sp-runtime.workspace = true
 sp-runtime-interface.workspace = true
 sp-storage.workspace = true
 sp-version.workspace = true
+sp-keyring.workspace = true
+sp-keystore.workspace = true
 
-# substrate std / wasm only
-frame-support = { optional = true, git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
+frame-support.workspace = true
 
 # local deps
 ac-compose-macros = { path = "compose-macros", version = "1.17", default-features = false }
 ac-node-api.workspace = true
 ac-primitives.workspace =true
 scale-info.workspace = true
+resonance-runtime.workspace = true
 
 [dev-dependencies]
 ac-node-api = { path = "node-api", version = "1.17", features = ["mocks"] }
 rococo-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master" }
 
 test-case = "3.1"
+
 
 [features]
 default = ["std", "jsonrpsee-client"]
@@ -154,9 +165,13 @@ std = [
     "sp-storage/std",
     "sp-version/std",
     # substrate std
-    "frame-support",
+    "frame-support/std",
     # local deps
     "ac-compose-macros/std",
     "ac-node-api/std",
     "ac-primitives/std",
+    "sp-externalities/std",
+    "resonance-runtime/std",
+    "sp-keyring/std",
+    "sp-keystore/std",
 ]

@@ -17,7 +17,7 @@
 
 use codec::Decode;
 use frame_support::dispatch::DispatchInfo;
-use rococo_runtime::RuntimeEvent;
+use resonance_runtime::RuntimeEvent;
 use sp_keyring::Sr25519Keyring;
 use substrate_api_client::{
 	ac_node_api::{EventDetails, StaticEvent},
