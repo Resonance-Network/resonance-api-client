@@ -28,7 +28,7 @@ impl Config for ResonanceRuntimeConfig {
 	type AccountId = AccountId32;
 	type Address = MultiAddress<Self::AccountId, u32>;
 	type Signature = ResonanceSignatureScheme;
-	type Hasher = BlakeTwo256;
+	type Hasher = PoseidonHasher;
 	type Header = Header<Self::BlockNumber, PoseidonHasher>;
 	type AccountData = AccountData<Self::Balance>;
 	type ExtrinsicParams = PlainTipExtrinsicParams<Self>;
