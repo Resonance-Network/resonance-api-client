@@ -25,19 +25,19 @@ use substrate_api_client::{
 	ac_compose_macros::{compose_call, compose_extrinsic_offline},
 	ac_primitives::{
 		config::Config, ExtrinsicParams, ExtrinsicSigner, GenericAdditionalParams, PlainTip,
-		RococoRuntimeConfig, SignExtrinsic,
+		ResonanceRuntimeConfig, SignExtrinsic,
 	},
 	rpc::JsonrpseeClient,
 	Api, GetChainInfo, SubmitAndWatch, XtStatus,
 };
 
-type DefaultExtrinsicSigner = <RococoRuntimeConfig as Config>::ExtrinsicSigner;
-type AccountId = <RococoRuntimeConfig as Config>::AccountId;
+type DefaultExtrinsicSigner = <ResonanceRuntimeConfig as Config>::ExtrinsicSigner;
+type AccountId = <ResonanceRuntimeConfig as Config>::AccountId;
 type ExtrinsicAddressOf<Signer> = <Signer as SignExtrinsic<AccountId>>::ExtrinsicAddress;
 
-type Hash = <RococoRuntimeConfig as Config>::Hash;
+type Hash = <ResonanceRuntimeConfig as Config>::Hash;
 /// Get the balance type from your node runtime and adapt it if necessary.
-type Balance = <RococoRuntimeConfig as Config>::Balance;
+type Balance = <ResonanceRuntimeConfig as Config>::Balance;
 type AdditionalParams = GenericAdditionalParams<PlainTip<Balance>, Hash>;
 
 // To test this example with CI we run it against the Polkadot Rococo node. Remember to switch the Config to match your
@@ -51,8 +51,8 @@ async fn main() {
 	let signer = Sr25519Keyring::Alice.pair();
 	let client = JsonrpseeClient::with_default_url().await.unwrap();
 
-	let mut api = Api::<RococoRuntimeConfig, _>::new(client).await.unwrap();
-	let extrinsic_signer = ExtrinsicSigner::<RococoRuntimeConfig>::new(signer);
+	let mut api = Api::<ResonanceRuntimeConfig, _>::new(client).await.unwrap();
+	let extrinsic_signer = ExtrinsicSigner::<ResonanceRuntimeConfig>::new(signer);
 	// Signer is needed to set the nonce and sign the extrinsic.
 	api.set_signer(extrinsic_signer.clone());
 
@@ -84,7 +84,7 @@ async fn main() {
 
 	// Construct an extrinsic using only functionality available in no_std
 	let xt = {
-		let extrinsic_params = <RococoRuntimeConfig as Config>::ExtrinsicParams::new(
+		let extrinsic_params = <ResonanceRuntimeConfig as Config>::ExtrinsicParams::new(
 			spec_version,
 			transaction_version,
 			signer_nonce,

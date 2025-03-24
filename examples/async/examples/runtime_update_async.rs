@@ -20,7 +20,7 @@ use sp_keyring::Sr25519Keyring;
 use sp_weights::Weight;
 use substrate_api_client::{
 	ac_compose_macros::{compose_call, compose_extrinsic},
-	ac_primitives::{Config, RococoRuntimeConfig},
+	ac_primitives::{Config, ResonanceRuntimeConfig},
 	api_client::UpdateRuntime,
 	rpc::JsonrpseeClient,
 	rpc_api::RuntimeUpdateDetector,
@@ -29,7 +29,7 @@ use substrate_api_client::{
 use tokio::select;
 use tokio_util::sync::CancellationToken;
 
-type Hash = <RococoRuntimeConfig as Config>::Hash;
+type Hash = <ResonanceRuntimeConfig as Config>::Hash;
 
 #[tokio::main]
 async fn main() {
@@ -37,7 +37,7 @@ async fn main() {
 
 	// Initialize the api.
 	let client = JsonrpseeClient::with_default_url().await.unwrap();
-	let mut api = Api::<RococoRuntimeConfig, _>::new(client).await.unwrap();
+	let mut api = Api::<ResonanceRuntimeConfig, _>::new(client).await.unwrap();
 	let sudoer = Sr25519Keyring::Alice.pair();
 	api.set_signer(sudoer.into());
 
@@ -79,7 +79,7 @@ async fn main() {
 }
 
 pub async fn send_code_update_extrinsic(
-	api: &substrate_api_client::Api<RococoRuntimeConfig, JsonrpseeClient>,
+	api: &substrate_api_client::Api<ResonanceRuntimeConfig, JsonrpseeClient>,
 ) {
 	let new_wasm: &[u8] = include_bytes!("minimal_template_runtime.compact.compressed.wasm");
 

@@ -17,7 +17,7 @@
 //! To compile this example for async you need to set the `--no-default-features` flag
 
 use substrate_api_client::{
-	ac_primitives::RococoRuntimeConfig,
+	ac_primitives::ResonanceRuntimeConfig,
 	rpc::{HandleSubscription, JsonrpseeClient},
 	Api, GetChainInfo, SubscribeChain,
 };
@@ -31,7 +31,7 @@ async fn main() {
 
 	// Initialize the api.
 	let client = JsonrpseeClient::with_default_url().await.unwrap();
-	let api = Api::<RococoRuntimeConfig, _>::new(client).await.unwrap();
+	let api = Api::<ResonanceRuntimeConfig, _>::new(client).await.unwrap();
 
 	let (genesis_block, header_hash, signed_block) = tokio::try_join!(
 		api.get_genesis_block(),

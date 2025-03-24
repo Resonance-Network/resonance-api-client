@@ -21,7 +21,7 @@ use sp_keyring::Sr25519Keyring;
 use substrate_api_client::{
 	ac_compose_macros::{compose_call, compose_extrinsic},
 	ac_primitives::{
-		Config, ExtrinsicSigner as GenericExtrinsicSigner, RococoRuntimeConfig, SignExtrinsic,
+		Config, ExtrinsicSigner as GenericExtrinsicSigner, ResonanceRuntimeConfig, SignExtrinsic,
 		UncheckedExtrinsic,
 	},
 	rpc::JsonrpseeClient,
@@ -34,7 +34,7 @@ use substrate_api_client::{
 // Define an extrinsic signer type which sets the generic types of the `GenericExtrinsicSigner`.
 // This way, the types don't have to be reassigned with every usage of this type and makes
 // the code better readable.
-type ExtrinsicSigner = GenericExtrinsicSigner<RococoRuntimeConfig>;
+type ExtrinsicSigner = GenericExtrinsicSigner<ResonanceRuntimeConfig>;
 
 // To access the ExtrinsicAddress type of the Signer, we need to do this via the trait `SignExtrinsic`.
 // For better code readability, we define a simple type here and, at the same time, assign the
@@ -42,8 +42,8 @@ type ExtrinsicSigner = GenericExtrinsicSigner<RococoRuntimeConfig>;
 type ExtrinsicAddressOf<Signer> = <Signer as SignExtrinsic<AccountId>>::ExtrinsicAddress;
 
 // AccountId type of rococo runtime.
-type AccountId = <RococoRuntimeConfig as Config>::AccountId;
-type Address = <RococoRuntimeConfig as Config>::Address;
+type AccountId = <ResonanceRuntimeConfig as Config>::AccountId;
+type Address = <ResonanceRuntimeConfig as Config>::Address;
 
 #[tokio::main]
 async fn main() {
@@ -52,7 +52,7 @@ async fn main() {
 	// Initialize api and set the signer (sender) that is used to sign the extrinsics.
 	let sudoer = Sr25519Keyring::Alice.pair();
 	let client = JsonrpseeClient::with_default_url().await.unwrap();
-	let mut api = Api::<RococoRuntimeConfig, _>::new(client).await.unwrap();
+	let mut api = Api::<ResonanceRuntimeConfig, _>::new(client).await.unwrap();
 	api.set_signer(sudoer.into());
 
 	// Set the recipient of newly issued funds.

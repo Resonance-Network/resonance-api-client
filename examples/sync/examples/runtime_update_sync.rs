@@ -25,21 +25,21 @@ use sp_weights::Weight;
 use std::{sync::Arc, thread};
 use substrate_api_client::{
 	ac_compose_macros::{compose_call, compose_extrinsic},
-	ac_primitives::{Config, RococoRuntimeConfig},
+	ac_primitives::{Config, ResonanceRuntimeConfig},
 	api_client::UpdateRuntime,
 	rpc::TungsteniteRpcClient,
 	rpc_api::RuntimeUpdateDetector,
 	Api, SubmitAndWatch, SubscribeEvents, XtStatus,
 };
 
-type Hash = <RococoRuntimeConfig as Config>::Hash;
+type Hash = <ResonanceRuntimeConfig as Config>::Hash;
 
 fn main() {
 	env_logger::init();
 
 	// Initialize the api.
 	let client = TungsteniteRpcClient::with_default_url(1);
-	let mut api = Api::<RococoRuntimeConfig, _>::new(client).unwrap();
+	let mut api = Api::<ResonanceRuntimeConfig, _>::new(client).unwrap();
 	let sudoer = Sr25519Keyring::Alice.pair();
 	api.set_signer(sudoer.into());
 
@@ -76,7 +76,7 @@ fn main() {
 }
 
 pub fn send_code_update_extrinsic(
-	api: &substrate_api_client::Api<RococoRuntimeConfig, TungsteniteRpcClient>,
+	api: &substrate_api_client::Api<ResonanceRuntimeConfig, TungsteniteRpcClient>,
 ) {
 	let new_wasm: &[u8] = include_bytes!("minimal_template_runtime.compact.compressed.wasm");
 

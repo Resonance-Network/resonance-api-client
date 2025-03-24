@@ -21,18 +21,18 @@ use sp_keyring::Sr25519Keyring;
 use substrate_api_client::{
 	ac_node_api::RawEventDetails,
 	ac_primitives::{
-		Config, ExtrinsicSigner as GenericExtrinsicSigner, RococoRuntimeConfig, SignExtrinsic,
+		Config, ExtrinsicSigner as GenericExtrinsicSigner, ResonanceRuntimeConfig, SignExtrinsic,
 	},
 	rpc::{HandleSubscription, JsonrpseeClient},
 	Api, SubmitAndWatch, SubmitExtrinsic, TransactionStatus, XtStatus,
 };
 
-type ExtrinsicSigner = GenericExtrinsicSigner<RococoRuntimeConfig>;
+type ExtrinsicSigner = GenericExtrinsicSigner<ResonanceRuntimeConfig>;
 type ExtrinsicAddressOf<Signer> = <Signer as SignExtrinsic<AccountId>>::ExtrinsicAddress;
-type Hash = <RococoRuntimeConfig as Config>::Hash;
-type MyApi = Api<RococoRuntimeConfig, JsonrpseeClient>;
-type Index = <RococoRuntimeConfig as Config>::Index;
-type AccountId = <RococoRuntimeConfig as Config>::AccountId;
+type Hash = <ResonanceRuntimeConfig as Config>::Hash;
+type MyApi = Api<ResonanceRuntimeConfig, JsonrpseeClient>;
+type Index = <ResonanceRuntimeConfig as Config>::Index;
+type AccountId = <ResonanceRuntimeConfig as Config>::AccountId;
 
 #[tokio::main]
 async fn main() {

@@ -22,7 +22,7 @@ use sp_core::Bytes;
 use sp_keyring::Sr25519Keyring;
 use substrate_api_client::{
 	ac_compose_macros::rpc_params,
-	ac_primitives::RococoRuntimeConfig,
+	ac_primitives::ResonanceRuntimeConfig,
 	extrinsic::BalancesExtrinsics,
 	rpc::{HandleSubscription, JsonrpseeClient, Request, Subscribe},
 	Api,
@@ -38,7 +38,7 @@ async fn main() {
 	// Initialize api and set the signer (sender) that is used to sign the extrinsics.
 	let signer = Sr25519Keyring::Alice.pair();
 	let client = JsonrpseeClient::with_default_url().await.unwrap();
-	let mut api = Api::<RococoRuntimeConfig, _>::new(client).await.unwrap();
+	let mut api = Api::<ResonanceRuntimeConfig, _>::new(client).await.unwrap();
 	api.set_signer(signer.into());
 
 	// Retrieve all available rpc methods:

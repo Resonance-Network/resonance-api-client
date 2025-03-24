@@ -19,7 +19,7 @@ use sp_core::H256;
 use sp_keyring::Sr25519Keyring;
 use sp_runtime::MultiAddress;
 use substrate_api_client::{
-	ac_primitives::RococoRuntimeConfig, extrinsic::BalancesExtrinsics, rpc::JsonrpseeClient, Api,
+	ac_primitives::ResonanceRuntimeConfig, extrinsic::BalancesExtrinsics, rpc::JsonrpseeClient, Api,
 	Error, GetAccountInformation, GetBalance, SubmitAndWatch, XtStatus,
 };
 
@@ -29,7 +29,7 @@ async fn main() {
 	let client = JsonrpseeClient::with_default_url().await.unwrap();
 	let alice_signer = Sr25519Keyring::Alice.pair();
 	let bob_signer = Sr25519Keyring::Bob.pair();
-	let mut api = Api::<RococoRuntimeConfig, _>::new(client).await.unwrap();
+	let mut api = Api::<ResonanceRuntimeConfig, _>::new(client).await.unwrap();
 
 	let alice = Sr25519Keyring::Alice.to_account_id();
 	let balance_of_alice = api.get_account_data(&alice).await.unwrap().unwrap().free;

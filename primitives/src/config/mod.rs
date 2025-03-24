@@ -179,7 +179,7 @@ impl<T: Config, E: extrinsic_params::ExtrinsicParams<T::Index, T::Hash>> Config
 /// ```
 /// use ac_primitives::{ DefaultRuntimeConfig, WithAddress, MultiAddress, AccountId32 };
 ///
-/// type RococoRuntimeConfig = WithAddress<DefaultRuntimeConfig, MultiAddress<AccountId32, ()>>;
+/// type ResonanceRuntimeConfig = WithAddress<DefaultRuntimeConfig, MultiAddress<AccountId32, ()>>;
 /// ```
 #[derive(Decode, Encode, Clone, Eq, PartialEq, Debug)]
 pub struct WithAddress<T, A>

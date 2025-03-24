@@ -19,7 +19,7 @@
 use log::debug;
 use sp_core::H256 as Hash;
 use substrate_api_client::{
-	ac_primitives::RococoRuntimeConfig, rpc::JsonrpseeClient, Api, SubscribeEvents,
+	ac_primitives::ResonanceRuntimeConfig, rpc::JsonrpseeClient, Api, SubscribeEvents,
 };
 
 // This module depends on the specific node runtime.
@@ -35,7 +35,7 @@ async fn main() {
 
 	// Initialize the api.
 	let client = JsonrpseeClient::with_default_url().await.unwrap();
-	let api = Api::<RococoRuntimeConfig, _>::new(client).await.unwrap();
+	let api = Api::<ResonanceRuntimeConfig, _>::new(client).await.unwrap();
 
 	println!("Subscribe to events");
 	let mut subscription = api.subscribe_events().await.unwrap();

@@ -27,7 +27,7 @@ use substrate_api_client::{
 	Api, FetchEvents, GetChainInfo, SubmitAndWatch, SubscribeEvents, XtStatus,
 };
 
-type Hash = <RococoRuntimeConfig as Config>::Hash;
+type Hash = <ResonanceRuntimeConfig as Config>::Hash;
 
 /// Check out frame_system::Event::ExtrinsicSuccess:
 #[derive(Decode, Debug)]
@@ -45,7 +45,7 @@ async fn main() {
 	// Setup
 	let client = JsonrpseeClient::with_default_url().await.unwrap();
 	let alice_pair = Sr25519Keyring::Alice.pair();
-	let mut api = Api::<RococoRuntimeConfig, _>::new(client).await.unwrap();
+	let mut api = Api::<ResonanceRuntimeConfig, _>::new(client).await.unwrap();
 	api.set_signer(alice_pair.into());
 
 	let bob = Sr25519Keyring::Bob.to_account_id();
@@ -76,7 +76,7 @@ async fn main() {
 	// Wait for event callbacks from the node, which are received via subscription.
 	for _ in 0..5 {
 		let event_records = event_subscription
-			.next_events::<RuntimeEvent, <RococoRuntimeConfig as Config>::Hash>()
+			.next_events::<RuntimeEvent, <ResonanceRuntimeConfig as Config>::Hash>()
 			.await
 			.unwrap()
 			.unwrap();

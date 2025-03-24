@@ -17,4 +17,4 @@
 
 use crate::{config::WithAddress, AccountId32, DefaultRuntimeConfig, MultiAddress};
 
-pub type RococoRuntimeConfig = WithAddress<DefaultRuntimeConfig, MultiAddress<AccountId32, ()>>;
+pub type ResonanceRuntimeConfig = WithAddress<DefaultRuntimeConfig, MultiAddress<AccountId32, ()>>;
