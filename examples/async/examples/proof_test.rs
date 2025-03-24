@@ -1,5 +1,6 @@
 use hash_db::{HashDB, Hasher};
 use memory_db::MemoryDB;
+use poseidon_resonance::PoseidonHasher;
 use trie_db::{DBValue, Trie, TrieMut, TrieDB, TrieDBMut, proof, TrieDBMutBuilder};
 use sp_core::H256;
 use sp_trie::{LayoutV1, TrieLayout, TrieConfiguration, HashKey };
@@ -10,12 +11,12 @@ type TrieHasher = BlakeTwo256;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create a new in-memory database
-    let mut db = MemoryDB::<BlakeTwo256, HashKey<BlakeTwo256>, Vec<u8>>::default();
+    let mut db = MemoryDB::<PoseidonHasher, HashKey<PoseidonHasher>, Vec<u8>>::default();
     let mut root: H256 = Default::default();
 
     // Insert some key-value pairs into a new trie
     {
-        let mut trie = TrieDBMutBuilder::<LayoutV1<TrieHasher>>::new(&mut db, &mut root).build();
+        let mut trie = TrieDBMutBuilder::<LayoutV1<PoseidonHasher>>::new(&mut db, &mut root).build();
         trie.insert(b"key1", b"value1")?;
         trie.insert(b"key2", b"value2")?;
         trie.insert(b"key3", b"value3")?;
@@ -25,7 +26,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Generate a proof for some keys
     let keys_to_prove = vec![b"key1".to_vec(), b"key3".to_vec(), b"key5".to_vec()];
-    let proof = proof::generate_proof::<_, LayoutV1<TrieHasher>, _, _>(&db, &root, keys_to_prove.iter())?;
+    let proof = proof::generate_proof::<_, LayoutV1<PoseidonHasher>, _, _>(&db, &root, keys_to_prove.iter())?;
     println!("Generated proof with {} bytes", proof.len());
 
     // Verify the proof
@@ -37,7 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     let items = items.iter().map(|(k, v)| (k.as_slice(), v.as_ref().map(|v| v.as_slice()))).collect::<Vec<_>>();
 
-    match proof::verify_proof::<LayoutV1<TrieHasher>, _, _, _>(&root, &proof, items.iter()) {
+    match proof::verify_proof::<LayoutV1<PoseidonHasher>, _, _, _>(&root, &proof, items.iter()) {
         Ok(result) => {
             println!("Proof verification succeeded!");
             println!("Results: {:?}", result);
