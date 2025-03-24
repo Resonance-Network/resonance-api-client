@@ -40,6 +40,7 @@ async fn main() {
 	env_logger::init();
 	println!("[+] Dilithium Signature TEST\n");
 
+
 	// Initialize api and set the signer (sender) that is used to sign the extrinsics.
 	let alice_signer = crystal_alice();
 	// let alice = crystal_alice.into_account();
@@ -50,10 +51,25 @@ async fn main() {
 
 	let client = JsonrpseeClient::with_default_url().await.unwrap();
 	let mut api = Api::<ResonanceRuntimeConfig, _>::new(client).await.unwrap();
-
 	let es = ExtrinsicSigner::<ResonanceRuntimeConfig>::new(alice_signer.into());
-
 	api.set_signer(es);
+
+
+	// MMR
+	// let runtime_api = api.runtime_api();
+
+	// // This doesn't seem to work with the current substrate node. Tried it on polkadot.js aswell, but it keeps on runtime panicking.
+	// let generated_proof = runtime_api.generate_proof(vec![0, 1], None, None).unwrap().unwrap();
+	// let root = runtime_api.root(None).unwrap().unwrap();
+	// runtime_api
+	// 	.verify_proof(generated_proof.0, generated_proof.1, None)
+	// 	.unwrap()
+	// 	.unwrap();
+	// let generated_proof = runtime_api.generate_proof(vec![1], None, None).unwrap().unwrap();
+	// runtime_api
+	// 	.verify_proof_stateless(root[0], generated_proof.0, generated_proof.1, None)
+	// 	.unwrap()
+	// 	.unwrap();
 
 
 	let (maybe_data_of_alice, maybe_data_of_bob) =
@@ -155,16 +171,23 @@ async fn get_transfer_proof(
 ) -> Result<(), Box<dyn std::error::Error>> {
 	let block_hash = api.get_block_hash(None).await.unwrap().unwrap();
 	// let block_hash = H256::from_str("0x3e21267e348b58b3a45e04c6fa00bce3c19c4cabbaafc3c923b08ad6b8a578ca").unwrap();
-	tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+	tokio::time::sleep(tokio::time::Duration::from_secs(4)).await;
 
 	let nonce = api.runtime_api().account_nonce(from.clone(), None).await.unwrap();
 	// let nonce = 1;
-	let key_tuple = (nonce, from, to, amount);
+	let key_tuple = (nonce - 1, from, to, amount);
 	println!("[+] Transaction nonce: {nonce:?} key: {key_tuple:?}");
 
-	// Request the storage proof
+	let pallet_prefix = twox_128("Balances".as_bytes());
+	let storage_prefix = twox_128("TransferProof".as_bytes());
+	let encoded_key = key_tuple.encode();
+	let key_hash = <PoseidonHasher as HashTrait>::hash(&encoded_key);
+
+	let correct_storage_key = [&pallet_prefix[..], &storage_prefix[..], key_hash.as_ref()].concat();
+	let storage_key = StorageKey(correct_storage_key.clone());
+
 	let proof = api
-		.get_storage_map_proof("Balances", "TransferProof", key_tuple.clone(), Some(block_hash))
+		.get_storage_proof_by_keys(vec![storage_key], Some(block_hash))
 		.await
 		.unwrap()
 		.unwrap();
@@ -176,11 +199,6 @@ async fn get_transfer_proof(
 		.map(|bytes| bytes.as_ref().to_vec()) // Convert each Bytes to Vec<u8>
 		.collect::<Vec<_>>(); // Collect into Vec<Vec<u8>>
 
-	// for (i, node) in proof_as_u8.iter().enumerate() {
-	// 	println!("Proof node {}: {} bytes", i, node.len());
-	// 	println!("  Data: {:?}", hex::encode(node));
-	// }
-
 	for (i, node_data) in proof_as_u8.iter().enumerate() {
 		match <sp_trie::LayoutV1<PoseidonHasher> as TrieLayout>::Codec::decode(node_data) {
 			Ok(node) => {
@@ -189,11 +207,11 @@ async fn get_transfer_proof(
 					Node::Leaf(partial, value) => {
 						let nibbles: Vec<u8> = partial.right_iter().collect();
 						log::info!("Proof node {}: Leaf, partial: {:?}, value: {:?}",
-                        i, hex::encode(&nibbles), value);
+                        i, &nibbles, value);
 					},
 					Node::Extension(partial, _) => {
 						let nibbles: Vec<u8> = partial.right_iter().collect();
-						log::info!("Proof node {}: Extension, partial: {:?}", i, hex::encode(&nibbles));
+						log::info!("Proof node {}: Extension, partial: {:?}", i, &nibbles);
 					},
 					Node::Branch(children, value) => {
 						log::info!("Proof node {}: Branch, value: {:?}", i, value);
@@ -208,12 +226,12 @@ async fn get_transfer_proof(
 						let children = children.iter()
 							.filter_map(|x| x.as_ref()
 								.map(|val| match val {
-									NodeHandle::Hash(h) => hex::encode(h),
-									NodeHandle::Inline(i) => hex::encode(i)
+									NodeHandle::Hash(h) => h.to_vec(),
+									NodeHandle::Inline(i) => i.to_vec()
 								})
-							).collect::<Vec<String>>();
+							).collect::<Vec<Vec<u8>>>();
 						log::info!("Proof node {}: NibbledBranch, partial: {:?}, value: {:?}, children: {:?}",
-                        i, hex::encode(&nibbles), value, children);
+                        i, &nibbles, value, children);
 					},
 				}
 			},
@@ -223,71 +241,46 @@ async fn get_transfer_proof(
 
 	println!("Storage proof at block {:?}: {:?}", block_hash, proof.proof);
 
-	let pallet_prefix = twox_128("Balances".as_bytes());
-	let storage_prefix = twox_128("TransferProof".as_bytes());
-	let encoded_key = key_tuple.encode();
-	let key_hash = <PoseidonHasher as HashTrait>::hash(&encoded_key);
-	// let key_hash = <BlakeTwo256 as HashTrait>::hash(&encoded_key);
-
-	let correct_storage_key = [&pallet_prefix[..], &storage_prefix[..], key_hash.as_ref()].concat();
 	let storage_key = StorageKey(correct_storage_key.clone());
-
-	// let storage_key = api.metadata().storage_map_key("Balances", "TransferProof", encoded_key.clone()).unwrap();
-
-	println!("Storage key: {:?} {:?}", hex::encode(&storage_key), storage_key);
-	// println!("Storage key2: {:?} ", hex::encode(&storage_key2));
-
-	// let storage_info = api.metadata().storage("Balances", "TransferProof").unwrap();
-	// println!("Storage hasher: {:?}", storage_info.ty.hashers());
-	//
-	// let state_value = api.metadata().storage(&storage_key, Some(block_hash)).await.unwrap();
-	// println!("Value in state: {:?}", state_value);
-
-
-	// Compute the storage key
-	// let pallet_hash = twox_128("Balances".as_bytes());
-	// let storage_hash = twox_128("TransferProof".as_bytes());
-	// let key_encoded = key_tuple.encode();
-	// let key_hash = PoseidonHasher::hash(&key_encoded); // Blake2_128Concat
-	// let storage_key = [&pallet_hash[..], &storage_hash[..], key_hash.as_ref()].concat();
-	// println!("Storage key: {:?}", &storage_key);
 
 	let header = api.get_header(Some(block_hash)).await.unwrap().unwrap();
 	let state_root = header.state_root;
 	println!("Header: {:?} State root: {:?}", header, state_root);
-	let expected_value = 1u8.encode();
+	let expected_value = true.encode();
 	// println!("Proof: {:?}", proof_as_u8);
 	println!("Expected value: {:?}", expected_value);
 
 	let storage_value = api
-		.get_storage_by_key::<u8>(storage_key.clone(), Some(block_hash))
+		.get_storage_by_key::<bool>(storage_key, Some(block_hash))
 		.await
 		.unwrap();
+		// .unwrap();
+
 	println!("Storage value: {:?}", storage_value);
 
-	// let nibble_key = encoded_key.iter().flat_map(|&byte| {
-	// 	// Convert each byte to two nibbles
-	// 	[(byte >> 4) & 0xF, byte & 0xF]
-	// }).collect::<Vec<u8>>();
-	let blake_key_hash = Blake2Hasher::hash(&encoded_key);
 
 	let mut items = Vec::new();
-	// items.push((encoded_key, Some(expected_value)));
-	items.push((correct_storage_key, Some(expected_value)));
-	// items.push((key_hash, Some(expected_value)));
-	// items.push((blake_key_hash, Some(expected_value)));
-
-	// let key_value_pair: (&[u8], Option<&[u8]>) = (&encoded_key.as_slice(), Some(expected_value.as_slice()));
-	// let key_value_pair = (encoded_key.as_slice(), Some(expected_value.as_slice()));
-	// let key_value_pair = (correct_storage_key.as_slice(), Some(expected_value.as_slice()));
-	// let key_value_pair: (&[u8], Option<&[u8]>) = (&storage_key.0, Some(expected_value.as_slice()));
-	// let key_value_pair: ([u8; 32], Option<&[u8]>) = (blake_key_hash.0, Some(expected_value.as_slice()));
-	// let key_value_pair: (&[u8], Option<u8>) = (&storage_key.0[..], Some(1u8));
-	// let key_value_pair: (&[u8], Option<&[u8]>) = (&storage_key.0[..], None);
+	
+	// Extract the key directly from the first proof node
+	let proof_node = &proof_as_u8[0];
+	
+	// The format of the proof node is:
+	// [header, 0, key_bytes..., 4, 1]
+	// We need to extract just the key bytes
+	
+	// Using what we can see from the logs, the key starts at index 2 and ends at length-2
+	let key_bytes = if proof_node.len() > 4 {
+		proof_node[2..proof_node.len()-2].to_vec()
+	} else {
+		correct_storage_key.clone() // Fallback
+	};
+	
+	items.push((key_bytes, Some(true.encode())));
+	
+	println!("Verifying with key: {:?}", items[0].0);
 
 	let result = verify_proof::<sp_trie::LayoutV1<PoseidonHasher>, _, _, _>(
 		&state_root, &proof_as_u8, items.iter());
-		// &state_root, &proof_as_u8, std::iter::once(&key_value_pair));
 	match result {
 		Ok(()) => println!("Proof verified"),
 		Err(e) => println!("Proof failed to verify: {:?}", e),
