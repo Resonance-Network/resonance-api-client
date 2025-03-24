@@ -32,8 +32,10 @@ dependencies = [
  "env_logger",
  "frame-support",
  "frame-system",
+ "hash-db",
  "hex",
  "log",
+ "memory-db",
  "pallet-balances 40.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "pallet-identity",
  "pallet-recovery",
@@ -51,6 +53,7 @@ dependencies = [
  "tokio",
  "tokio-util",
  "trie-db",
+ "trie-root",
  "wabt",
 ]
 
