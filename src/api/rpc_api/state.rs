@@ -339,7 +339,7 @@ where
 		at_block: Option<Self::Hash>,
 	) -> Result<Option<ReadProof<Self::Hash>>> {
 		let storagekey = self.metadata().storage_value_key(pallet, storage_item)?;
-		info!("value proofstorage key is: 0x{}", &storagekey);
+		info!("value proof storage key is: 0x{}", hex::encode(&storagekey));
 		self.get_storage_proof_by_keys(vec![storagekey], at_block).await
 	}
 
@@ -351,7 +351,7 @@ where
 		at_block: Option<Self::Hash>,
 	) -> Result<Option<ReadProof<Self::Hash>>> {
 		let storagekey = self.metadata().storage_map_key::<K>(pallet, storage_item, map_key)?;
-		info!("map proof storage key is: 0x{}", &storagekey);
+		info!("map proof storage key is: 0x{}", hex::encode(&storagekey));
 		self.get_storage_proof_by_keys(vec![storagekey], at_block).await
 	}
 
@@ -369,7 +369,7 @@ where
 			first_double_map_key,
 			second_double_map_key,
 		)?;
-		info!("double map proof storage key is: 0x{}", &storage_key);
+		info!("double map proof storage key is: 0x{}", hex::encode(&storage_key));
 		self.get_storage_proof_by_keys(vec![storage_key], at_block).await
 	}
 

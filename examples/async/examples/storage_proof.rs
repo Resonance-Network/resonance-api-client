@@ -52,8 +52,8 @@ fn verify_storage_proof(key: &[u8], value: &[u8], proof: &Vec<Vec<u8>>, state_ro
 		&state_root, &proof, items.iter());
 		// &state_root, &proof_as_u8, std::iter::once(&key_value_pair));
 	match result {
-		Ok(()) => println!("Proof verified"),
-		Err(e) => println!("Proof failed to verify: {:?}", e),
+		Ok(()) => true,
+		Err(e) => false,
 	}
     // verify_proof(&state_root, &proof, &[(key, Some(value))]).unwrap();
 

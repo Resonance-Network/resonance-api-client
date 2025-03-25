@@ -26,7 +26,7 @@ use poseidon_resonance::PoseidonHasher;
 use sp_core::crypto::AccountId32;
 use sp_core::{twox_128, Blake2Hasher, Hasher, H256};
 use substrate_api_client::runtime_api::AccountNonceApi;
-use trie_db::proof::verify_proof;
+use trie_db::proof;
 use hex;
 use trie_db::node::{Node, NodeHandle};
 use trie_db::TrieLayout;
@@ -120,36 +120,24 @@ async fn get_storage_value(
 	nonce: u32,
 	to: &AccountId32,
 	amount: u128,
+	block_hash: H256,
 ) -> bool {
-	let block_hash = api.get_block_hash(None).await.unwrap().unwrap();
 
 	let nonce = nonce;
 	let key_tuple = (nonce, from.clone(), to.clone(), amount);
 	println!("[+] Transaction nonce: {nonce:?} key: {key_tuple:?}");
 
-	// Manually constructing the storage key - this works, but it's duplicating code inside the pallet.
-	/* 
-	let pallet_prefix = twox_128("Balances".as_bytes());
-	let storage_prefix = twox_128("TransferProof".as_bytes());
-	let encoded_key = key_tuple.encode();
-	let key_hash = <PoseidonHasher as HashTrait>::hash(&encoded_key);
-
-	let correct_storage_key = [&pallet_prefix[..], &storage_prefix[..], key_hash.as_ref()].concat();
-	*/
-	let storage_key = pallet_balances::pallet::TransferProof::<resonance_runtime::Runtime, ()>::hashed_key_for(&key_tuple);
+	let storage_key = get_storage_key(key_tuple);
 
 	// let storage_key_1 = StorageKey(correct_storage_key.clone());
 	let storage_key_2 = StorageKey(storage_key.clone());
 
 	// println!("Storage key 1: {:?}", storage_key_1); // same as storage_key_2!
-	println!("Nonce: {:?} Storage key 2: {:?}", nonce, storage_key_2);
+	// println!("Nonce: {:?} Storage key 2: {:?}", nonce, storage_key_2);
 
-	let header = api.get_header(Some(block_hash)).await.unwrap().unwrap();
-	let state_root = header.state_root;
-	println!("Header: {:?} State root: {:?}", header, state_root);
-	let expected_value = true.encode();
-
-	println!("Expected value: {:?}", expected_value);
+	let expected_value: Vec<u8> = true.encode();
+	let expected = Some(bool::decode(&mut expected_value.as_slice())).unwrap().unwrap();	
+	println!("Expected value: {:?}", expected);
 
 	let storage_value = api
 		.get_storage_by_key::<bool>(storage_key_2, Some(block_hash))
@@ -160,6 +148,25 @@ async fn get_storage_value(
 	println!("Storage value: {:?}", storage_value);
 
 	true
+}
+
+pub fn get_storage_key(key_tuple: (u32, AccountId32, AccountId32, u128)) -> Vec<u8> {
+
+	// Manually constructing the storage key - this works, but it's duplicating code inside the pallet.
+	/* 
+	let pallet_prefix = twox_128("Balances".as_bytes());
+	let storage_prefix = twox_128("TransferProof".as_bytes());
+	let encoded_key = key_tuple.encode();
+	let key_hash = <PoseidonHasher as HashTrait>::hash(&encoded_key);
+
+	let correct_storage_key = [&pallet_prefix[..], &storage_prefix[..], key_hash.as_ref()].concat();
+	*/
+
+	let storage_key = pallet_balances::pallet::TransferProof::<resonance_runtime::Runtime, ()>::hashed_key_for(&key_tuple);
+
+	println!("Storage key: {:?}", storage_key);
+
+	storage_key
 }
 
 async fn get_transfer_proof(
@@ -173,27 +180,35 @@ async fn get_transfer_proof(
 
 	tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
 
-	let nonce = signer_nonce;
+	// for some reason nonce + 1 has our value.
+	// I think actually this is a bug in storage. It retrieves the nonce but after the transaction has taken place.
+	// So it gets the actual transaction nonce + 1.
+	let nonce = signer_nonce + 1; 
 
 	let key_tuple = (nonce, from.clone(), to.clone(), amount);
 	println!("[+] Transaction nonce: {nonce:?} key: {key_tuple:?}");
 
 	// let val = get_storage_value(&api, &from, signer_nonce, &to, amount).await;
-
-	let next_nonce = signer_nonce + 1;
-
-	let val_2 = get_storage_value(&api, &from, next_nonce, &to, amount).await;
-
+	let val_2 = get_storage_value(&api, &from, nonce, &to, amount, block_hash).await;
 	// let next_next_nonce = signer_nonce + 2;
-
 	// let val_3 = get_storage_value(&api, &from, next_next_nonce, &to, amount).await;
 
+	let storage_key = get_storage_key(key_tuple);
+
+	let storage_key_2 = StorageKey(storage_key.clone());
+
+	let header = api.get_header(Some(block_hash)).await.unwrap().unwrap();
+	let state_root = header.state_root;
+
+	println!("[+] State root: {:?}", &state_root);
 
 	let proof = api
 		.get_storage_proof_by_keys(vec![storage_key], Some(block_hash))
 		.await
 		.unwrap()
 		.unwrap();
+
+	println!("[+] Proof: {:?}", proof);
 
 	let proof_as_u8: Vec<Vec<u8>> = proof.proof
 		.iter() // Iterate over the Vec<Bytes>
@@ -240,28 +255,44 @@ async fn get_transfer_proof(
 		}
 	}
 
-	println!("Storage proof at block {:?}: {:?}", block_hash, proof.proof);
+	let key_tuple = (nonce, from.clone(), to.clone(), amount);
+	let storage_key = pallet_balances::pallet::TransferProof::<resonance_runtime::Runtime, ()>::hashed_key_for(&key_tuple);
+	let storage_key_2 = StorageKey(storage_key.clone());
 
-	let mut items = Vec::new();
+    let items: Vec<(Vec<u8>, Option<Vec<u8>>)> = vec![
+        (storage_key_2.encode().to_vec(), Some(true.encode())),
+    ];
+    
+    let items = items.iter().map(|(k, v)| (k.as_slice(), v.as_ref().map(|v| v.as_slice()))).collect::<Vec<_>>();
 	
-	let proof_node = &proof_as_u8[0];
+	// let proof_node = &proof_as_u8[0];
 
-	let key_bytes = if proof_node.len() > 4 {
-		proof_node[2..proof_node.len()-2].to_vec()
-	} else {
-		correct_storage_key.clone() // Fallback
-	};
+	// let key_bytes = if proof_node.len() > 4 {
+	// 	proof_node[2..proof_node.len()-2].to_vec()
+	// } else {
+	// 	correct_storage_key.clone() // Fallback
+	// };
 	
-	items.push((key_bytes, Some(true.encode())));
+	// items.push((key_bytes, Some(true.encode())));
 	
-	println!("Verifying with key: {:?}", items[0].0);
+	// println!("Verifying with key: {:?}", items[0].0);
+    println!("Items: {:?}", items);
+    match proof::verify_proof::<sp_trie::LayoutV1<PoseidonHasher>, _, _, _>(&state_root, &proof_as_u8, items.iter()) {
+        Ok(result) => {
+            println!("Proof verification succeeded!");
+            println!("Results: {:?}", result);
+        },
+        Err(e) => {
+            println!("Proof verification failed: {:?}", e);
+        }
+    }
 
-	let result = verify_proof::<sp_trie::LayoutV1<PoseidonHasher>, _, _, _>(
-		&state_root, &proof_as_u8, items.iter());
-	match result {
-		Ok(()) => println!("Proof verified"),
-		Err(e) => println!("Proof failed to verify: {:?}", e),
-	}
+	// let result = proof::verify_proof::<sp_trie::LayoutV1<PoseidonHasher>, _, _, _>(
+	// 	&state_root, &proof_as_u8, items.iter());
+	// match result {
+	// 	Ok(()) => println!("Proof verified"),
+	// 	Err(e) => println!("Proof failed to verify: {:?}", e),
+	// }
 	
 	// let verified = verify_storage_proof(state_root, storage_key, proof.proof, expected_value);
 	// println!("Verified storage proof: {:?}", verified);
