@@ -36,7 +36,7 @@ dependencies = [
  "hex",
  "log",
  "memory-db",
- "pallet-balances 40.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pallet-balances 40.0.1",
  "pallet-identity",
  "pallet-recovery",
  "pallet-staking",

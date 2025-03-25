@@ -38,6 +38,7 @@ impl Config for ResonanceRuntimeConfig {
 	type Balance = u128;
 	type ContractCurrency = u128;
 	type StakingBalance = u128;
+	
 }
 
 // A struct representing the signed extra and additional parameters required
