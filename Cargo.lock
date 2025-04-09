@@ -35,7 +35,7 @@ dependencies = [
  "frame-system",
  "hex",
  "log",
- "pallet-balances",
+ "pallet-balances 40.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "pallet-merkle-airdrop",
  "pallet-recovery",
  "pallet-staking",
@@ -122,7 +122,7 @@ dependencies = [
  "frame-system",
  "impl-serde",
  "pallet-assets",
- "pallet-balances",
+ "pallet-balances 40.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "pallet-contracts",
  "pallet-staking",
  "parity-scale-codec",
@@ -148,7 +148,7 @@ version = "1.17.0"
 dependencies = [
  "frame-support",
  "jsonrpsee",
- "pallet-balances",
+ "pallet-balances 40.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "pallet-society",
  "parity-scale-codec",
  "resonance-runtime",
@@ -3335,6 +3335,21 @@ dependencies = [
 [[package]]
 name = "pallet-balances"
 version = "40.0.1"
+dependencies = [
+ "docify",
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "log",
+ "parity-scale-codec",
+ "poseidon-resonance",
+ "scale-info",
+ "sp-runtime",
+]
+
+[[package]]
+name = "pallet-balances"
+version = "40.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b3d18caaae72674d6536d339c1ae5b5063b55de5813a43ee045847d28c0a128"
 dependencies = [
@@ -3361,7 +3376,7 @@ dependencies = [
  "frame-system",
  "impl-trait-for-tuples",
  "log",
- "pallet-balances",
+ "pallet-balances 40.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "pallet-contracts-proc-macro",
  "pallet-contracts-uapi",
  "parity-scale-codec",
@@ -3413,13 +3428,29 @@ dependencies = [
  "frame-support",
  "frame-system",
  "log",
- "pallet-balances",
+ "pallet-balances 40.0.1",
  "parity-scale-codec",
  "poseidon-resonance",
  "scale-info",
  "sha2 0.10.8",
  "sp-core",
  "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-mining-rewards"
+version = "0.1.0"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "log",
+ "pallet-balances 40.0.1",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-consensus-pow",
  "sp-runtime",
  "sp-std",
 ]
@@ -3540,17 +3571,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-template"
-version = "0.1.0"
-dependencies = [
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "parity-scale-codec",
- "scale-info",
-]
-
-[[package]]
 name = "pallet-timestamp"
 version = "38.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3601,6 +3621,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-vesting"
+version = "0.1.0"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "log",
+ "pallet-balances 40.0.1",
+ "pallet-timestamp",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-arithmetic",
+ "sp-consensus-pow",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "pallet-wormhole"
 version = "0.1.0"
 dependencies = [
@@ -3608,7 +3646,7 @@ dependencies = [
  "frame-system",
  "lazy_static",
  "log",
- "pallet-balances",
+ "pallet-balances 40.0.1",
  "parity-scale-codec",
  "plonky2",
  "scale-info",
@@ -4261,14 +4299,15 @@ dependencies = [
  "frame-system-rpc-runtime-api",
  "frame-try-runtime",
  "log",
- "pallet-balances",
+ "pallet-balances 40.0.1",
  "pallet-merkle-airdrop",
+ "pallet-mining-rewards",
  "pallet-qpow",
  "pallet-sudo",
- "pallet-template",
  "pallet-timestamp",
  "pallet-transaction-payment",
  "pallet-transaction-payment-rpc-runtime-api",
+ "pallet-vesting",
  "pallet-wormhole",
  "parity-scale-codec",
  "poseidon-resonance",
@@ -5045,6 +5084,18 @@ checksum = "d5d66b12f19243bac666aa84c1df18f12989b924b467377973b349ff4913c3e6"
 dependencies = [
  "sp-api",
  "sp-inherents",
+ "sp-runtime",
+]
+
+[[package]]
+name = "sp-consensus-pow"
+version = "0.41.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6e6c87b5b8c2f96eb095b179681f18f0751e89339bdb2ba89e8779198f1f341"
+dependencies = [
+ "parity-scale-codec",
+ "sp-api",
+ "sp-core",
  "sp-runtime",
 ]
 
