@@ -16,11 +16,12 @@
 // To test this example with CI we run it against the Polkadot Rococo node. Remember to switch the Config to match your
 // own runtime if it uses different parameter configurations. Several pre-compiled runtimes are available in the ac-primitives crate.
 
+use dilithium_crypto::crystal_alice;
 use sp_keyring::Sr25519Keyring;
 use sp_weights::Weight;
 use substrate_api_client::{
 	ac_compose_macros::{compose_call, compose_extrinsic},
-	ac_primitives::{Config, RococoRuntimeConfig},
+	ac_primitives::Config,
 	api_client::UpdateRuntime,
 	rpc::JsonrpseeClient,
 	rpc_api::RuntimeUpdateDetector,
@@ -28,8 +29,9 @@ use substrate_api_client::{
 };
 use tokio::select;
 use tokio_util::sync::CancellationToken;
+use substrate_api_client::ac_primitives::ResonanceRuntimeConfig;
 
-type Hash = <RococoRuntimeConfig as Config>::Hash;
+type Hash = <ResonanceRuntimeConfig as Config>::Hash;
 
 #[tokio::main]
 async fn main() {
@@ -37,8 +39,8 @@ async fn main() {
 
 	// Initialize the api.
 	let client = JsonrpseeClient::with_default_url().await.unwrap();
-	let mut api = Api::<RococoRuntimeConfig, _>::new(client).await.unwrap();
-	let sudoer = Sr25519Keyring::Alice.pair();
+	let mut api = Api::<ResonanceRuntimeConfig, _>::new(client).await.unwrap();
+	let sudoer = crystal_alice();
 	api.set_signer(sudoer.into());
 
 	let subscription = api.subscribe_events().await.unwrap();
@@ -79,13 +81,15 @@ async fn main() {
 }
 
 pub async fn send_code_update_extrinsic(
-	api: &substrate_api_client::Api<RococoRuntimeConfig, JsonrpseeClient>,
+	api: &substrate_api_client::Api<ResonanceRuntimeConfig, JsonrpseeClient>,
 ) {
 	let new_wasm: &[u8] = include_bytes!("minimal_template_runtime.compact.compressed.wasm");
 
 	// this call can only be called by sudo
 	let call = compose_call!(api.metadata(), "System", "set_code", new_wasm.to_vec()).unwrap();
 	let weight: Weight = 0.into();
+	// We don't have SUDO pallet, because we don't want to have direct updates without voting
+	println!("Add SUDO pallet if you want to update the runtime without voting.");
 	let xt = compose_extrinsic!(&api, "Sudo", "sudo_unchecked_weight", call, weight).unwrap();
 
 	println!("Sending extrinsic to trigger runtime update");

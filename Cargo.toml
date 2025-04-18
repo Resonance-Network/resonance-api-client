@@ -30,7 +30,7 @@ members = [
 ## Note: Use these local paths for testing the latest changes you made
 # dilithium-crypto = { path = "../backbone/dilithium-crypto", default-features = false, features = ["full_crypto"] }
 # resonance-runtime = { path = "../backbone/runtime", default-features = false }
-pallet-merkle-airdrop = { path = "../backbone/pallets/merkle-airdrop", default-features = false }
+#pallet-merkle-airdrop = { path = "../backbone/pallets/merkle-airdrop", default-features = false }
 
 # See readme how to set up access to private repos 
 dilithium-crypto = { git = "https://gitlab.com/resonance-network/backbone.git", default-features = false }
