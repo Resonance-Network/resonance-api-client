@@ -32,6 +32,7 @@ dependencies = [
  "clap",
  "dilithium-crypto",
  "env_logger",
+ "frame-support",
  "frame-system",
  "hex",
  "log",
