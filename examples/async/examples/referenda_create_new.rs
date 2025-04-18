@@ -83,9 +83,6 @@ async fn main() {
         }
     };
 
-    let call = RuntimeCall::System(frame_system::Call::remark {
-        remark: format!("Referendum proposal test {}", timestamp).into_bytes(),
-    });
     // Encode the call
     let encoded_proposal = proposal_call.encode();
     println!("[+] Encoded proposal size: {} bytes", encoded_proposal.len());
@@ -147,7 +144,7 @@ async fn main() {
     println!("\n[+] Step 2: Submitting referendum proposal");
 
 
-    let proposal_origin = OriginCaller::system(RawOrigin::Root);
+    let proposal_origin = OriginCaller::system(RawOrigin::None);
 
     let bounded_call: frame_support::traits::Bounded<RuntimeCall, PoseidonHasher> = frame_support::traits::Bounded::Lookup {
         hash: preimage_hash,
@@ -192,11 +189,6 @@ async fn main() {
     println!("[+] Extrinsic params: {:?}", extrinsic_params);
 
     let submit_xt = compose_extrinsic_offline!(es, submit_call.clone(), extrinsic_params);
-
-    println!("[+] Is extrinsic signed: {:?}", submit_xt.is_signed());
-    //println!("[+] Extrinsicr: {:?}", submit_xt.to_string());
-
-    println!("[+] Submit call: {:?}", submit_call);
 
     println!("[+] Submitting referendum extrinsic");
     match api.submit_and_watch_extrinsic_until(submit_xt, XtStatus::InBlock).await {
