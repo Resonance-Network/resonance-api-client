@@ -144,6 +144,7 @@ async fn main() {
     println!("\n[+] Step 2: Submitting referendum proposal");
 
 
+    // Change this to change track Root - 0, Signed - 1, None - 2
     let proposal_origin = OriginCaller::system(RawOrigin::None);
 
     let bounded_call: frame_support::traits::Bounded<RuntimeCall, PoseidonHasher> = frame_support::traits::Bounded::Lookup {

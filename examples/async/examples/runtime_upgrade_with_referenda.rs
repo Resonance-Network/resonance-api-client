@@ -65,6 +65,8 @@ async fn main() {
 
     // Load the new runtime wasm code
     // Note: You need to provide the path to your new runtime wasm file
+    // You can't send the same wasm two times. Please remember to update it every time.
+    // If you add too many features to your release it won't work. Max is 5MB now.
     let new_runtime_wasm = include_bytes!("resonance_runtime.compact.compressed.wasm");
     println!("[+] New runtime size: {} bytes", new_runtime_wasm.len());
 
