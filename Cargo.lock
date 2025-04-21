@@ -48,7 +48,6 @@ dependencies = [
  "sp-keyring",
  "sp-runtime",
  "sp-state-machine",
- "sp-storage",
  "sp-trie",
  "sp-weights",
  "substrate-api-client",

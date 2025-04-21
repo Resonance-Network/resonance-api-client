@@ -144,7 +144,7 @@ async fn main() {
     println!("\n[+] Step 2: Submitting referendum proposal");
 
 
-    let proposal_origin = OriginCaller::system(RawOrigin::Root);
+    let proposal_origin = OriginCaller::system(RawOrigin::None);
 
     let bounded_call: frame_support::traits::Bounded<RuntimeCall, PoseidonHasher> = frame_support::traits::Bounded::Lookup {
         hash: preimage_hash,
@@ -205,25 +205,17 @@ async fn main() {
                         println!("Event debug info:");
                         println!("  - Event type: {}", std::any::type_name_of_val(&event));
 
-                        // Let's print the event to see what it contains
-                        println!("  - Full event: {:?}", event);
-
-                        // Just directly try to parse the event display representation
-                        let event_string = format!("{:?}", event);
-                        println!("  - Event string: {}", event_string);
-
-                        // Try to extract the index from the string representation
-                        if let Some(index_start) = event_string.find("index: ") {
-                            let index_substring = &event_string[index_start + 7..];
-                            if let Some(index_end) = index_substring.find(',') {
-                                let index_str = &index_substring[..index_end].trim();
-                                match index_str.parse::<u32>() {
-                                    Ok(index_value) => {
-                                        referendum_index = Some(index_str.to_string());
-                                        println!("    - Referendum index: {}", index_value);
-                                    },
-                                    Err(_) => println!("    - Could not parse index: {}", index_str),
-                                }
+                        // Get the raw event bytes
+                        let field_bytes = event.field_bytes();
+                        if !field_bytes.is_empty() {
+                            // The first field in the Submitted event is the referendum index
+                            // We need to decode it as a u32
+                            match <u32 as codec::Decode>::decode(&mut &field_bytes[..]) {
+                                Ok(index) => {
+                                    referendum_index = Some(index.to_string());
+                                    println!("    - Referendum index: {}", index);
+                                },
+                                Err(e) => println!("    - Failed to decode referendum index: {:?}", e),
                             }
                         }
                     }

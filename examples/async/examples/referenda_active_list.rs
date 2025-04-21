@@ -3,6 +3,7 @@
     Licensed under the Apache License, Version 2.0
 */
 use substrate_api_client::{ac_primitives::{resonance_runtime_config::ResonanceRuntimeConfig}, rpc::JsonrpseeClient, Api, GetStorage};
+use codec::{self, Decode};
 
 #[tokio::main]
 async fn main() {
@@ -144,38 +145,59 @@ async fn check_track_queues(api: &Api<ResonanceRuntimeConfig, JsonrpseeClient>) 
     let tracks = [0u16, 1u16, 2u16]; // Root, Signed, Signaling
 
     for track_id in tracks {
-        // Use the same direct approach that worked for referenda
+        println!("\n[+] Checking track queue for track #{}", track_id);
         match api.metadata().storage_map_key::<u16>("Referenda", "TrackQueue", track_id) {
             Ok(key) => {
                 match api.get_opaque_storage_by_key(key, None).await {
                     Ok(Some(queue_data)) => {
-                        // Process raw bytes
-                        // The first byte should indicate vector length in SCALE encoding
-                        if !queue_data.is_empty() {
-                            // Basic SCALE decoding for vector length
-                            // For small vectors (< 64 items), length is encoded in the first byte
-                            let count = if queue_data[0] & 0b11 == 0 {
-                                (queue_data[0] >> 2) as usize
-                            } else {
-                                // For longer vectors, we'd need proper SCALE decoding
-                                // This is a simplification
-                                0
-                            };
+                        println!("  Track {}:", track_id);
+                        
+                        if queue_data.is_empty() {
+                            println!("    Queue is empty");
+                            continue;
+                        }
 
-                            if count > 0 {
-                                println!("    Track {}: {} referendum(s) in queue", track_id, count);
-                            } else {
-                                println!("    Track {}: Queue empty", track_id);
+                        // Proper SCALE decoding of vector length
+                        let mut cursor = &queue_data[..];
+                        let count = match codec::Compact::<u32>::decode(&mut cursor) {
+                            Ok(compact) => compact.0 as usize,
+                            Err(e) => {
+                                println!("    Failed to decode queue length: {:?}", e);
+                                continue;
                             }
-                        } else {
-                            println!("    Track {}: Empty data", track_id);
+                        };
+
+                        println!("    Queue contains {} referendum(s)", count);
+
+                        // Try to decode each referendum in the queue
+                        for i in 0..count {
+                            // Each referendum in the queue should be a tuple of (index, track_id, status)
+                            match <(u32, u16, u8) as codec::Decode>::decode(&mut cursor) {
+                                Ok((index, track, status)) => {
+                                    let status_str = match status {
+                                        0 => "Ongoing",
+                                        1 => "Approved",
+                                        2 => "Rejected",
+                                        3 => "Cancelled",
+                                        4 => "TimedOut",
+                                        5 => "Killed",
+                                        _ => "Unknown",
+                                    };
+                                    println!("      [{}] Referendum #{} (Track {}) - {}", 
+                                        i + 1, index, track, status_str);
+                                },
+                                Err(e) => {
+                                    println!("      Failed to decode referendum #{}: {:?}", i + 1, e);
+                                    break;
+                                }
+                            }
                         }
                     },
                     Ok(None) => println!("    Track {}: No queue data", track_id),
-                    Err(e) => println!("    Track {}: Error fetching queue: {:?}", track_id, e),
+                    Err(e) => println!("    Error retrieving queue for track {}: {:?}", track_id, e),
                 }
             },
-            Err(e) => println!("    Track {}: Error generating key: {:?}", track_id, e),
+            Err(e) => println!("    Error getting storage key for track {}: {:?}", track_id, e),
         }
     }
 }
