@@ -144,7 +144,7 @@ async fn main() {
     println!("\n[+] Step 2: Submitting referendum proposal");
 
 
-    let proposal_origin = OriginCaller::system(RawOrigin::None);
+    let proposal_origin = OriginCaller::system(RawOrigin::Root);
 
     let bounded_call: frame_support::traits::Bounded<RuntimeCall, PoseidonHasher> = frame_support::traits::Bounded::Lookup {
         hash: preimage_hash,

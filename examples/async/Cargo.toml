@@ -24,6 +24,7 @@ pallet-staking = { version = "39.0.1" }
 sp-core = { version = "35.0.0" }
 sp-keyring = { version = "40.0.0" }
 sp-runtime = { version = "40.1.0" }
+sp-storage = { version = "22.0.0"}
 sp-weights = { version = "31.0.0" }
 dilithium-crypto = { workspace = true, default-features = false, features = ["full_crypto"] }
 resonance-runtime = { workspace = true, default-features = false, features=["std"] }

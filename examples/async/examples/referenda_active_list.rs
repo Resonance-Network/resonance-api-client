@@ -2,7 +2,6 @@
     Copyright 2023 Your Name
     Licensed under the Apache License, Version 2.0
 */
-
 use substrate_api_client::{ac_primitives::{resonance_runtime_config::ResonanceRuntimeConfig}, rpc::JsonrpseeClient, Api, GetStorage};
 
 #[tokio::main]
@@ -32,15 +31,22 @@ async fn main() {
     let mut active_referenda = Vec::new();
 
     for index in 0..referendum_count {
-        match api.get_storage_map::<u32, String>("Referenda", "ReferendumInfoFor", index, None).await {
-            Ok(Some(info_hex)) => {
-                let info_bytes = hex::decode(info_hex.trim_start_matches("0x")).unwrap();
 
-                // Check the first byte to determine the status
-                // 0 = Ongoing, 1 = Approved, 2 = Rejected, etc.
-                if !info_bytes.is_empty() && info_bytes[0] == 0 {
-                    // This is an ongoing referendum
-                    println!("[+] Found active referendum #{}", index);
+        let key = api.metadata().storage_map_key::<u32>("Referenda", "ReferendumInfoFor", index).expect("KEY");
+
+        match api.get_opaque_storage_by_key(key, None).await {
+            Ok(Some(info_bytes)) => {
+                if !info_bytes.is_empty() {
+                    // Determine the status
+                    let status = match info_bytes[0] {
+                        0 => "Ongoing",
+                        1 => "Approved",
+                        2 => "Rejected",
+                        3 => "Cancelled",
+                        4 => "TimedOut",
+                        5 => "Killed",
+                        _ => "Unknown",
+                    };
 
                     // Extract basic information (track ID)
                     let track_id = if info_bytes.len() >= 3 {
@@ -55,6 +61,7 @@ async fn main() {
                     active_referenda.push(ActiveReferendum {
                         index,
                         track_id,
+                        status: status.to_string(),
                         ayes,
                         nays,
                     });
@@ -72,7 +79,7 @@ async fn main() {
         println!("    No active referenda found");
     } else {
         for (i, referendum) in active_referenda.iter().enumerate() {
-            println!("  [{}] Referendum #{} (Track {})", i+1, referendum.index, referendum.track_id);
+            println!("  [{}] Referendum #{} (Track {}) - {}", i+1, referendum.index, referendum.track_id, referendum.status);
             println!("      Votes - Ayes: {}, Nays: {}", referendum.ayes, referendum.nays);
 
             // If you want to get more details about each referendum, you could add additional queries here
@@ -88,42 +95,47 @@ async fn main() {
 struct ActiveReferendum {
     index: u32,
     track_id: u16,
+    status: String,
     ayes: u128,
     nays: u128,
 }
 
 // Helper function to extract tally information
+// Improved tally extraction function
 fn extract_tally(info_bytes: &[u8]) -> (u128, u128) {
-    // This is a simplified approximation - proper decoding would use SCALE codec
-    // Ayes and nays are u128 values, typically in the latter part of the referendum info
+    // Try different offsets for tally data
+    // The exact position depends on the specific structure of your ReferendumInfo
 
-    if info_bytes.len() < 72 {
-        return (0, 0);
+    // Define several candidate positions to check
+    let candidate_positions = [
+        (72, 88),  // Position 1: ayes at 72, nays at 88
+        (96, 112), // Position 2: ayes at 96, nays at 112
+        (56, 72),  // Position 3: ayes at 56, nays at 72
+        (110, 126) // Position 4: ayes at 110, nays at 126
+    ];
+
+    for (ayes_start, nays_start) in candidate_positions {
+        if nays_start + 16 <= info_bytes.len() {
+            let mut ayes_bytes = [0u8; 16];
+            let mut nays_bytes = [0u8; 16];
+
+            ayes_bytes.copy_from_slice(&info_bytes[ayes_start..ayes_start+16]);
+            nays_bytes.copy_from_slice(&info_bytes[nays_start..nays_start+16]);
+
+            let ayes = u128::from_le_bytes(ayes_bytes);
+            let nays = u128::from_le_bytes(nays_bytes);
+
+            // Check if the numbers look reasonable
+            // For example, if they're smaller than 10^18
+            if ayes < 1_000_000_000_000_000_000 && nays < 1_000_000_000_000_000_000 &&
+                (ayes > 0 || nays > 0) {
+                return (ayes, nays);
+            }
+        }
     }
 
-    // Approximate positions for tally data
-    // This is based on common structure of Referendum status, but may need adjustment
-    let ayes_start = 40;
-    let ayes_end = ayes_start + 16;
-
-    let nays_start = ayes_end;
-    let nays_end = nays_start + 16;
-
-    let mut ayes_bytes = [0u8; 16];
-    let mut nays_bytes = [0u8; 16];
-
-    if ayes_end <= info_bytes.len() {
-        ayes_bytes.copy_from_slice(&info_bytes[ayes_start..ayes_end]);
-    }
-
-    if nays_end <= info_bytes.len() {
-        nays_bytes.copy_from_slice(&info_bytes[nays_start..nays_end]);
-    }
-
-    let ayes = u128::from_le_bytes(ayes_bytes);
-    let nays = u128::from_le_bytes(nays_bytes);
-
-    (ayes, nays)
+    // If we couldn't find reasonable values, return zeros
+    (0, 0)
 }
 
 // Check track queues to see referenda waiting to be decided
@@ -132,23 +144,38 @@ async fn check_track_queues(api: &Api<ResonanceRuntimeConfig, JsonrpseeClient>) 
     let tracks = [0u16, 1u16, 2u16]; // Root, Signed, Signaling
 
     for track_id in tracks {
-        match api.get_storage_map::<u16, String>("Referenda", "TrackQueue", track_id, None).await {
-            Ok(Some(queue_hex)) => {
-                let queue_bytes = hex::decode(queue_hex.trim_start_matches("0x")).unwrap();
+        // Use the same direct approach that worked for referenda
+        match api.metadata().storage_map_key::<u16>("Referenda", "TrackQueue", track_id) {
+            Ok(key) => {
+                match api.get_opaque_storage_by_key(key, None).await {
+                    Ok(Some(queue_data)) => {
+                        // Process raw bytes
+                        // The first byte should indicate vector length in SCALE encoding
+                        if !queue_data.is_empty() {
+                            // Basic SCALE decoding for vector length
+                            // For small vectors (< 64 items), length is encoded in the first byte
+                            let count = if queue_data[0] & 0b11 == 0 {
+                                (queue_data[0] >> 2) as usize
+                            } else {
+                                // For longer vectors, we'd need proper SCALE decoding
+                                // This is a simplification
+                                0
+                            };
 
-                // First byte should be the vector length (simplified)
-                if !queue_bytes.is_empty() {
-                    let count = queue_bytes[0] as usize;
-                    if count > 0 {
-                        println!("    Track {}: {} referendum(s) in queue", track_id, count);
-                    } else {
-                        println!("    Track {}: Queue empty", track_id);
-                    }
+                            if count > 0 {
+                                println!("    Track {}: {} referendum(s) in queue", track_id, count);
+                            } else {
+                                println!("    Track {}: Queue empty", track_id);
+                            }
+                        } else {
+                            println!("    Track {}: Empty data", track_id);
+                        }
+                    },
+                    Ok(None) => println!("    Track {}: No queue data", track_id),
+                    Err(e) => println!("    Track {}: Error fetching queue: {:?}", track_id, e),
                 }
             },
-            _ => {
-                println!("    Track {}: No queue information available", track_id);
-            }
+            Err(e) => println!("    Track {}: Error generating key: {:?}", track_id, e),
         }
     }
 }
