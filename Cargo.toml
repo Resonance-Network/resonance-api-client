@@ -37,6 +37,9 @@ dilithium-crypto = { git = "https://gitlab.com/resonance-network/backbone.git", 
 resonance-runtime = { git = "https://gitlab.com/resonance-network/backbone.git", default-features = false }
 # pallet-merkle-airdrop = { git = "https://gitlab.com/resonance-network/backbone.git", default-features = false }
 poseidon-resonance = { version = "0.3.0", git = "https://github.com/Resonance-Network/poseidon-resonance", default-features = false }
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+codec = { package = "parity-scale-codec", version = "3.7", default-features = false, features = ["derive"] }
+hex = { version = "0.4", default-features = false, features = ["alloc"] }
 
 [dependencies]
 frame-support = { version = "39.1.0", default-features = false, optional = true }
@@ -50,11 +53,11 @@ sp-storage = { version="22.0.0", default-features = false, features = ["serde"] 
 sp-version = { version="38.0.0", default-features = false, features = ["serde"] }
 
 async-trait = "0.1"
-codec = { package = "parity-scale-codec", version = "3.7", default-features = false, features = ["derive"] }
+codec = { workspace = true, default-features = false, features = ["derive"] }
 derive_more = { version = "2.0", default-features = false, features = ["from"] }
 frame-metadata = { version = "18.0", default-features = false, features = ["current", "serde_full", "decode"] }
 futures-util = { version = "0.3", default-features = false }
-hex = { version = "0.4", default-features = false, features = ["alloc"] }
+hex = { workspace = true, default-features = false, features = ["alloc"] }
 log = { version = "0.4", default-features = false }
 maybe-async = { version = "0.2" }
 serde = { version = "1.0", default-features = false, features = ["derive"] }
