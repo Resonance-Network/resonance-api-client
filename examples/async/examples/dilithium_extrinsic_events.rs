@@ -1,3 +1,4 @@
+use sp_core::crypto::Ss58Codec;
 /*
 	Copyright 2019 Supercomputing Systems AG
 	Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,24 +13,15 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
-
-
-// pub use types::{ResonancePublic, ResonanceSignature, ResonancePair, ResonanceSignatureScheme, ResonanceSigner, WrappedPublicBytes, WrappedSignatureBytes};
-// pub use crypto::{PUB_KEY_BYTES, SECRET_KEY_BYTES, SIGNATURE_BYTES};
-// pub use pair::{crystal_alice, dilithium_bob, crystal_charlie};
-use substrate_api_client::{
-	ac_node_api::RawEventDetails,
-	ac_primitives::{ExtrinsicSigner, Config, resonance_runtime_config::ResonanceRuntimeConfig},
-	extrinsic::BalancesExtrinsics,
-	rpc::JsonrpseeClient,
-	Api, GetAccountInformation, SubmitAndWatch, TransactionStatus, XtStatus,
-};
+use substrate_api_client::{ac_node_api::RawEventDetails, ac_primitives::{UncheckedExtrinsic, ExtrinsicSigner, Config, resonance_runtime_config::ResonanceRuntimeConfig}, extrinsic::BalancesExtrinsics, rpc::JsonrpseeClient, Api, GetAccountInformation, GetChainInfo, GetStorage, SubmitAndWatch, TransactionStatus, XtStatus};
 use dilithium_crypto::pair::{crystal_alice, dilithium_bob};
-use sp_runtime::traits::IdentifyAccount;
-type Hash = <ResonanceRuntimeConfig as Config>::Hash;
+use sp_runtime::{traits::IdentifyAccount, AccountId32};
 
-// To test this example with CI we run it against the Polkadot Rococo node. Remember to switch the Config to match your
-// own runtime if it uses different parameter configurations. Several pre-compiled runtimes are available in the ac-primitives crate.
+type Hash = <ResonanceRuntimeConfig as Config>::Hash;
+use hex;
+use trie_db::TrieLayout;
+
+mod verify_proof;
 
 #[tokio::main]
 async fn main() {
@@ -42,6 +34,9 @@ async fn main() {
 	// let bob = dilithium_bob.into_account();
 	let alice = crystal_alice().into_account();  // Get public key and convert to account
 	let bob = dilithium_bob().into_account();
+
+	// test some other account for send to
+	// let bob = AccountId32::from_string("5FktBKPnRkY5QvF2NmFNUNh55mJvBtgMth5QoBjFJ4E4BbFf").unwrap();
 
 
 	let client = JsonrpseeClient::with_default_url().await.unwrap();
@@ -98,11 +93,14 @@ async fn main() {
 	// assert!(balance_of_alice > new_balance_of_alice);
 
 	// Next, we send an extrinsic that should succeed:
-	let balance_to_transfer = 1000;
-	let good_transfer_extrinsic = api
+	let balance_to_transfer = 1000000000;
+	let good_transfer_extrinsic: UncheckedExtrinsic<_, _, _, _> = api
 		.balance_transfer_allow_death(bob.clone().into(), balance_to_transfer)
 		.await
 		.unwrap();
+
+	// let encoded = good_transfer_extrinsic.encode(); // don't need this
+
 	println!("[+] Composed good extrinsic: {good_transfer_extrinsic:?}\n",);
 	// Send and watch extrinsic until InBlock.
 	let result = api
@@ -138,7 +136,11 @@ async fn main() {
 	println!("[+] Crystal Bob's Free Balance is now {}\n", new_balance_of_bob);
 	let expected_balance_of_bob = balance_of_bob + balance_to_transfer;
 	assert_eq!(expected_balance_of_bob, new_balance_of_bob);
+
+	let verified = verify_proof::verify_transfer_proof(api, alice, bob, balance_to_transfer).await;
+
 }
+
 
 fn assert_associated_events_match_expected(events: Vec<RawEventDetails<Hash>>) {
 	// First event
