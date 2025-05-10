@@ -1248,7 +1248,7 @@ dependencies = [
 [[package]]
 name = "dilithium-crypto"
 version = "0.1.0"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "hdwallet",
  "log",
@@ -2126,7 +2126,7 @@ checksum = "bf151400ff0baff5465007dd2f3e717f3fe502074ca563069ce3a6629d07b289"
 [[package]]
 name = "hdwallet"
 version = "0.1.0"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "rusty-crystals-dilithium",
 ]
@@ -3364,7 +3364,7 @@ dependencies = [
 [[package]]
 name = "pallet-balances"
 version = "40.0.1"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "docify",
  "frame-benchmarking",
@@ -3469,7 +3469,7 @@ dependencies = [
 [[package]]
 name = "pallet-faucet"
 version = "0.1.0"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "frame-support",
  "frame-system",
@@ -3487,7 +3487,7 @@ dependencies = [
 [[package]]
 name = "pallet-mining-rewards"
 version = "0.1.0"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
@@ -3521,7 +3521,7 @@ dependencies = [
 [[package]]
 name = "pallet-qpow"
 version = "0.1.0"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
@@ -3532,6 +3532,7 @@ dependencies = [
  "parity-scale-codec",
  "qpow-math",
  "scale-info",
+ "sp-arithmetic",
  "sp-core",
  "sp-io",
  "sp-runtime",
@@ -3574,7 +3575,7 @@ dependencies = [
 [[package]]
 name = "pallet-reversible-transfers"
 version = "40.0.1"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
@@ -3751,7 +3752,7 @@ dependencies = [
 [[package]]
 name = "pallet-vesting"
 version = "0.1.0"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
@@ -3770,7 +3771,7 @@ dependencies = [
 [[package]]
 name = "pallet-wormhole"
 version = "0.1.0"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "frame-support",
  "frame-system",
@@ -4253,8 +4254,9 @@ dependencies = [
 [[package]]
 name = "qpow-math"
 version = "0.1.0"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
+ "log",
  "num-bigint",
  "num-traits",
  "primitive-types 0.13.1",
@@ -4487,7 +4489,7 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 [[package]]
 name = "resonance-runtime"
 version = "0.1.0"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "dilithium-crypto",
  "frame-benchmarking",
@@ -5298,8 +5300,7 @@ dependencies = [
 [[package]]
 name = "sp-consensus-pow"
 version = "0.41.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6e6c87b5b8c2f96eb095b179681f18f0751e89339bdb2ba89e8779198f1f341"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "parity-scale-codec",
  "sp-api",
@@ -5310,7 +5311,7 @@ dependencies = [
 [[package]]
 name = "sp-consensus-qpow"
 version = "0.1.0"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "parity-scale-codec",
  "primitive-types 0.13.1",
@@ -5416,7 +5417,7 @@ dependencies = [
 [[package]]
 name = "sp-faucet"
 version = "0.1.0"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "parity-scale-codec",
  "sp-api",
@@ -6643,7 +6644,7 @@ checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 [[package]]
 name = "verify"
 version = "0.1.0"
-source = "git+https://gitlab.com/resonance-network/backbone.git#39f6f54f8e068447856f5e1d3057f4695c85cf1b"
+source = "git+https://github.com/Quantus-Network/chain#b3f8320e39b8b322d143c35b46b9cbc14d6812fc"
 dependencies = [
  "rusty-crystals-dilithium",
 ]
